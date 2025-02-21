@@ -38,7 +38,7 @@ class Event(Base):
     description = Column(String)
     owner_id = Column(Integer, nullable=False)
     deleted = Column(Boolean, default=False)  # 論理削除用フラグ
-    color = Column(String, default="#FFCCCC")  # イベント背景色（初期値：赤系）
+    color = Column(String, default="#FFCCCC")   # 背景色（初期値：赤系）
 
 class Todo(Base):
     __tablename__ = "todos"
@@ -51,14 +51,16 @@ class Todo(Base):
 Base.metadata.create_all(bind=engine)
 
 # ---------------------------
-# Streamlit セッション初期化
+# セッション初期化
 # ---------------------------
 st.session_state.setdefault("current_user", None)
 st.session_state.setdefault("page", "login")  # "login", "register", "main"
 if "edit_event_id" not in st.session_state:
     st.session_state.edit_event_id = None
 
+# ---------------------------
 # 定義しておく背景色の選択肢
+# ---------------------------
 colors = {
     "赤": "#FFCCCC",
     "緑": "#CCFFCC",
@@ -192,13 +194,9 @@ def serialize_events_for_period(owner_id, start_date, end_date):
         })
     return json.dumps(evs)
 
-# ---------------------------
-# 編集フォームの表示
-# ---------------------------
 def show_edit_event_form(event):
     st.sidebar.markdown("### 予定編集")
-    # 編集フォーム内で背景色の選択を追加
-    # 現在の色に一致する名前を探す
+    # 現在の色名を取得
     current_color_name = None
     for name, code in colors.items():
         if code == event.color:
@@ -277,7 +275,7 @@ def main_page():
     
     st.sidebar.button("ログアウト", on_click=logout_ui)
     
-    # 編集フォームの表示（もし編集対象が選択されていれば）
+    # 編集フォームの表示（編集対象があれば）
     if st.session_state.edit_event_id is not None:
         event_to_edit = get_event_by_id(st.session_state.edit_event_id, st.session_state.current_user.id)
         if event_to_edit:
